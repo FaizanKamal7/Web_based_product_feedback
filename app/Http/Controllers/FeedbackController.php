@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\VoteTypeEnum;
+use App\Interfaces\FeedbackInterface;
 use App\Models\Feedback;
 use App\Models\FeedbackComment;
 use App\Models\FeedbackVote;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\Validator;
 
 class FeedbackController extends Controller
 {
+
+    private $feedback_repository;
+    public function __construct(FeedbackInterface $feedback_repository)
+    {
+        $this->feedback_repository = $feedback_repository;
+    }
+
     public function storeFeedback(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -32,12 +40,13 @@ class FeedbackController extends Controller
 
         try {
             DB::beginTransaction();
-            Feedback::create([
+            $this->feedback_repository->createFeedback([
                 'feedback_category_id' => $request->feedback_category_id,
                 'title' => $request->title,
                 'description' => $request->description,
                 'user_id' => Auth::user()->id,
             ]);
+
             DB::commit();
             return Redirect::back()->with('success', 'Feedback submitted successfully');
         } catch (Throwable $th) {
@@ -62,11 +71,12 @@ class FeedbackController extends Controller
 
         try {
             DB::beginTransaction();
-            FeedbackComment::create([
+            $this->feedback_repository->createFeedbackComment([
                 'feedback_id' => $request->feedback_id,
                 'content' => $request->comment,
                 'user_id' => Auth::user()->id,
             ]);
+
             DB::commit();
             return Redirect::back()->with('success', 'Comment submitted successfully');
         } catch (Throwable $th) {
@@ -84,11 +94,12 @@ class FeedbackController extends Controller
     {
         try {
             DB::beginTransaction();
-            FeedbackVote::create([
+            $this->feedback_repository->createFeedbackVote([
                 'vote_type' => VoteTypeEnum::UP_VOTE->value,
                 'feedback_id' => $request->feedback_id,
                 'user_id' => Auth::user()->id,
             ]);
+
             DB::commit();
             return Redirect::back()->with('success', 'Upvote submitted successfully');
         } catch (Throwable $th) {
@@ -102,7 +113,7 @@ class FeedbackController extends Controller
     {
         try {
             DB::beginTransaction();
-            FeedbackVote::create([
+            $this->feedback_repository->createFeedbackVote([
                 'vote_type' => VoteTypeEnum::DOWN_VOTE->value,
                 'feedback_id' => $request->feedback_id,
                 'user_id' => Auth::user()->id,
@@ -113,5 +124,39 @@ class FeedbackController extends Controller
             DB::rollBack();
             return Redirect::back()->with('error', 'Failed to submit feedback commit. Please try again.')->withInput();
         }
+    }
+
+
+    public function storeCommentReaction(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->feedback_repository->createFeedbackCommentReaction([
+                'reaction' => $request->reaction,
+                'comment_id' => $request->comment_id,
+                'user_id' => Auth::user()->id,
+            ]);
+            DB::commit();
+            return Redirect::back()->with('success', 'Reaction uploaded successfully');
+        } catch (Throwable $th) {
+            DB::rollBack();
+            return Redirect::back()->with('error', 'Reaction not uploaded. Please try again.')->withInput();
+        }
+    }
+
+    public function deleteComment($id)
+    {
+        $comment = FeedbackComment::findOrFail($id);
+        $comment->delete();
+
+        return response()->json(['success' => 'Comment deleted successfully'], 200);
+    }
+
+    public function deleteFeedback($id)
+    {
+        $feedback = Feedback::findOrFail($id);
+        $feedback->delete();
+
+        return response()->json(['success' => 'Feedback deleted successfully'], 200);
     }
 }

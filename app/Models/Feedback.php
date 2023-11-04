@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\VoteTypeEnum;
+use Database\Factories\FeedbackFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -47,5 +48,10 @@ class Feedback extends Model
     public function feedbackDownVotes()
     {
         return $this->feedbackVotes()->where('vote_type',  VoteTypeEnum::DOWN_VOTE->value);
+    }
+
+    protected static function newFactory()
+    {
+        return FeedbackFactory::new();
     }
 }

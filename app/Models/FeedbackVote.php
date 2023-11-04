@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\FeedbackVoteFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,5 +26,10 @@ class FeedbackVote extends Model
     public function feedback()
     {
         return $this->belongsTo(Feedback::class, 'feedback_id');
+    }
+
+    protected static function newFactory()
+    {
+        return FeedbackVoteFactory::new();
     }
 }

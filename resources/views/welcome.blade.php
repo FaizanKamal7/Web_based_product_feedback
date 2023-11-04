@@ -10,8 +10,7 @@
         <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
             @auth
             @if (Auth::user()->is_admin)
-            <a href="{{ url('/dashboard') }}"
-                class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a>
+            <a href="{{ url('/dashboard') }}" class="btn btn-outline-warning">Dashboard</a>
             @endif
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -22,13 +21,11 @@
                 </x-dropdown-link>
             </form>
             @else
-            <a href="{{ route('login') }}"
-                class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log
+            <a href="{{ route('login') }}" class="btn btn-outline-primary">Log
                 in</a>
 
             @if (Route::has('register'))
-            <a href="{{ route('register') }}"
-                class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
+            <a href="{{ route('register') }}" class="btn btn-outline-primary">Register</a>
             @endif
             @endauth
         </div>
@@ -36,19 +33,37 @@
 
 
     </div>
-    <h1>Product Feedback</h1>
+    <h1 class="display-1 text-center">Product Feedback</h1>
+
 
     <div class="card text-center">
         <div class="card-header">
-            Product
+            Sample products
         </div>
         <div class="card-body">
-            <h5 class="card-title">TXT App</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+
+            <div class="container mt-5">
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-6">
+                        <img src="https://zippypixels.com/wp-content/uploads/2015/12/01-free-iPhone-perspective-app-screen-mockup.jpg"
+                            alt="Product Image" class="img-fluid" style="height: 20rem;">
+                    </div>
+                    <!-- Product Details -->
+                    <div class="col-md-6">
+                        <h2>Mango App</h2>
+                        <p class="lead">An innovative app that simplifies your life.</p>
+                        <p>Our app offers a comprehensive suite of tools designed to help you manage your daily tasks
+                            with ease. With an intuitive design and user-friendly interface, you'll find everything you
+                            need at your fingertips.</p>
+                        <h3>$9.99</h3>
+                        <button type="button" class="btn btn-primary">Download Now</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-footer text-muted">
-            Upvotes: 157, Downvotes: 78
+            Feedbacks: {{$feedbacks->count()}}
         </div>
     </div>
     <br><br>
@@ -58,18 +73,23 @@
             <div class="card-body">
                 <h5 class="card-title">Feedbacks</h5>
 
-                @foreach ($feedbacks as $feedback)
+                @foreach ($feedbacks as $key => $feedback)
                 <!-- FEEDBACKS -->
                 <div class="media mb-4">
                     <img src="https://via.placeholder.com/64" alt="user" class="mr-3 rounded-circle">
                     <div class="media-body">
                         <h6 class="mt-0">{{$feedback->user->name}}<small> - {{$feedback->created_at}}</small>
                         </h6>
-                        <b>{{$feedback->title}}</b><br>
-                        {{$feedback->description}}
+                        <span class="badge badge-pill badge-success">Category:
+                            {{$feedback->feedbackCategory->name}}</span>
+
+                        <h1 class="display-6">Title: {{$feedback->title}}</h1>
+                        <p class="lead">
+                            Description: {{$feedback->description}}</p>
+
                         <!-- Voting section -->
                         <div>
-                            <!-- Upvote form -->
+                            <!-- Upvote -->
                             <form action="{{ route('store_up_vote') }}" method="POST" style="display: inline;">
                                 @csrf
                                 <input type="hidden" name="feedback_id" value="{{ $feedback->id }}">
@@ -78,9 +98,10 @@
                                 </button>
                             </form>
 
-                            {{ $feedback->feedbackUpVotes()->count() - $feedback->feedbackDownVotes()->count() }}
+                            {{ $feedback->feedbackUpVotes()->count() - $feedback->feedbackDownVotes()->count()
+                            }}
 
-                            <!-- Downvote form -->
+                            <!-- Downvote -->
                             <form action="{{ route('store_down_vote') }}" method="POST" style="display: inline;">
                                 @csrf
                                 <input type="hidden" name="feedback_id" value="{{ $feedback->id }}">
@@ -92,47 +113,83 @@
                             <a href="#" class="text-secondary a_no_style" data-bs-toggle="collapse"
                                 data-bs-target="#replyComment1"><i class="bi bi-reply"></i> Reply</a>
                         </div>
-                        <!-- Reply form -->
+                        <!-- Reply -->
                         <div class="collapse mt-2" id="replyComment1">
                             <div class="d-flex">
                                 <input type="text" class="form-control form-control-sm" placeholder="Write a reply...">
                                 <button type="button" class="btn btn-primary btn-sm ms-2">Reply</button>
                             </div>
                         </div>
-                        <a href=""><b>Show all comments</b></a>
+                        <b onclick="toggleComments({{ $key }})" id="show_comments_text_id_{{ $key }}"><u> Hide all
+                                comments</u></b>
 
                     </div>
                 </div>
 
 
                 <!-- Nested Comment -->
-                <div class="comments">
+                <div class="comments" id="comments_{{ $key }}" style="display: block">
                     @foreach ($feedback->feedbackComments as $comment)
                     <div class="media mb-4 ml-5">
                         <img src="https://via.placeholder.com/64" alt="user" class="mr-3 rounded-circle">
                         <div class="media-body">
-                            <h6 class="mt-0">{{$comment->user->name}} <small>· {{$comment->created_at}}</small></h6>
-                            {{$comment->content}}
-                            <!-- Reactions -->
+                            <h6 class="mt-0">{{$comment->user->name}} <small> - {{$comment->created_at}}</small></h6>
+                            {!! Parsedown::instance()->text($comment->content) !!}
+
+                            <!--<< Reactions >>-->
                             <div>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class="bi bi-hand-thumbs-up" onclick=""></i>
-                                </span>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class="bi bi-hand-thumbs-down" onclick=""></i>
-                                </span>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class="bi bi-heart" onclick=""></i>
-                                </span>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class="bi bi-emoji-smile" onclick=""></i>
-                                </span>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class="bi bi-emoji-frown" onclick=""></i>
-                                </span>
-                                <span class="badge badge-info" style="font-size:0.8rem;"> 12
-                                    <i class=" bi bi-emoji-angry" onclick=""></i>
-                                </span>
+                                <form action="{{ route('store_reaction') }}" method="POST" style="display: inline;"
+                                    id="reactionForm">
+                                    @csrf
+                                    <input type="hidden" name="comment_id" value="{{ $comment->id }}" id="commentId">
+                                    <input type="hidden" name="reaction" value="" id="reactionType">
+
+                                    <!-- Likes Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::LIKE->value }}', '{{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentLikes()->count() }} <i
+                                            class="bi bi-hand-thumbs-up"></i>
+                                    </span>
+
+                                    <!-- Dislikes Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::DISLIKE->value }}', '{{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentDislikes()->count() }} <i
+                                            class="bi bi-hand-thumbs-down"></i>
+                                    </span>
+
+                                    <!-- Hearts Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::HEART->value }}',' {{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentHearts()->count() }} <i class="bi bi-heart"></i>
+                                    </span>
+
+                                    <!-- Smile Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::SMILE->value }}', '{{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentSmile()->count() }} <i
+                                            class="bi bi-emoji-smile"></i>
+                                    </span>
+
+                                    <!-- Sad Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::SAD->value }}', '{{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentSad()->count() }} <i class="bi bi-emoji-frown"></i>
+                                    </span>
+
+                                    <!-- Angry Span -->
+                                    <span
+                                        onclick="submitReaction('{{ $reactionTypeEnum::ANGRY->value }}', '{{ $comment->id }}')"
+                                        class="badge badge-secondary cursor-pointer" style="font-size:0.8rem;">
+                                        {{ $comment->feedbackCommentAngry()->count() }} <i
+                                            class="bi bi-emoji-angry"></i>
+                                    </span>
+                                </form>
 
                             </div>
                         </div>
@@ -144,16 +201,20 @@
                     <form action="{{ route('store_feedback_comment') }}" method="POST">
                         @csrf
                         <input type="hidden" name="feedback_id" value="{{$feedback->id}}">
-                        <div class="mt-3  ml-5">
+                        <div class="mt-3 ml-5">
                             <label for="comment" class="form-label">Add Comment</label>
-                            <textarea class="form-control" id="comment" name="comment" rows="5"></textarea>
+                            <!-- Textarea with decreased height -->
+                            <textarea class="form-control" id="comment-{{ $key }}" name="comment"
+                                rows="3"></textarea>
                             @error('comment')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                             <button type="submit" class="btn btn-primary mt-2">Submit</button>
                         </div>
                     </form>
+
                 </div>
+                <hr>
                 @endforeach
 
 
@@ -214,4 +275,36 @@
 
 
 </div>
+<script>
+    function toggleComments(key) {
+        var comments = document.getElementById('comments_' + key);
+        var text = document.getElementById('show_comments_text_id_' + key);
+
+        if (comments.style.display === 'none') {
+            comments.style.display = 'block';
+            text.innerHTML = '<u>Hide all comments</u>';
+        } else {
+            comments.style.display = 'none';
+            text.innerHTML = '<u>Show all comments</u>';
+        }
+    }
+
+    function submitReaction(reactionValue, commentId) {
+        document.getElementById('reactionType').value = reactionValue;
+        document.getElementById('commentId').value = commentId;
+        
+        document.getElementById('reactionForm').submit();
+        var comments = document.getElementById('comments');
+        comments.style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var textareas = document.querySelectorAll('.form-control');
+        textareas.forEach(function(textarea) {
+            new SimpleMDE({ element: textarea });
+        });
+    });
+</script>
+
+
 @endsection

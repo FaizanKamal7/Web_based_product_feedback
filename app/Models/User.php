@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Database\Factories\FeedbackCommentReactionFactory;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +49,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
     public function feedbackComments()
     {
         return $this->hasMany(FeedbackComment::class);
@@ -60,5 +67,10 @@ class User extends Authenticatable
     public function feedbackCommentReactions()
     {
         return $this->hasMany(FeedbackCommentReaction::class);
+    }
+
+    protected static function newFactory()
+    {
+        return UserFactory::new();
     }
 }
