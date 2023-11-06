@@ -28,8 +28,12 @@ To get started with this Laravel project, follow these steps:
    ```shell
    composer install
    ```
-
-4. Copy the `.env.example` file to `.env` and configure your environment variables, such as database settings and email providers for `Comment Notifier`:
+4. Run migration and seeders with following command
+   
+     ```shell  
+    Php artisan migrate:fresh --seed
+    ```
+5. Copy the `.env.example` file to `.env` and configure your environment variables, such as database settings and email providers for `Comment Notifier`:
 
    ```shell
     DB_DATABASE=<your_db>
