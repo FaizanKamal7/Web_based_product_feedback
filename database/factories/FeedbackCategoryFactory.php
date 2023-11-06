@@ -21,10 +21,14 @@ class FeedbackCategoryFactory extends Factory
     // Define a state to create only three records with specific names
     public function specificNames()
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'name' => $this->randomElement(['A', 'B', 'C']),
-            ];
+        static $index = 0;
+
+        $names = ['Bug Report', 'Feature Request', 'Improvement'];
+        $name = $names[$index % count($names)];
+        $index++;
+
+        return $this->state(function (array $attributes) use ($name) {
+            return ['name' => $name];
         });
     }
 }

@@ -85,9 +85,9 @@
 
                         <h1 class="display-6">Title: {{$feedback->title}}</h1>
                         <p class="lead">
-                            Description: {{$feedback->description}}</p>
-
-                        <!-- Voting section -->
+                            Description:
+                            {!! Parsedown::instance()->text($feedback->description) !!}
+                            <!-- Voting section -->
                         <div>
                             <!-- Upvote -->
                             <form action="{{ route('store_up_vote') }}" method="POST" style="display: inline;">
@@ -111,7 +111,7 @@
                             </form>
 
                             <a href="#" class="text-secondary a_no_style" data-bs-toggle="collapse"
-                                data-bs-target="#replyComment1"><i class="bi bi-reply"></i> Reply</a>
+                                data-bs-target="#add_comment_section"><i class="bi bi-reply"></i> Reply</a>
                         </div>
                         <!-- Reply -->
                         <div class="collapse mt-2" id="replyComment1">
@@ -201,11 +201,10 @@
                     <form action="{{ route('store_feedback_comment') }}" method="POST">
                         @csrf
                         <input type="hidden" name="feedback_id" value="{{$feedback->id}}">
-                        <div class="mt-3 ml-5">
+                        <div class="mt-3 ml-5" id="add_comment_section">
                             <label for="comment" class="form-label">Add Comment</label>
                             <!-- Textarea with decreased height -->
-                            <textarea class="form-control" id="comment-{{ $key }}" name="comment"
-                                rows="3"></textarea>
+                            <textarea class="form-control" id="comment-{{ $key }}" name="comment" rows="3"></textarea>
                             @error('comment')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
@@ -234,27 +233,32 @@
             <form action="{{ route('store_feedback') }}" method="POST">
                 @csrf
                 <div class="form-group">
-                    <label for="exampleFormControlSelect1">Feedback Categories</label>
-                    <select name="feedback_category_id" class="form-control" id="exampleFormControlSelect1">
+                    <label for="feedback_category"><b> Feedback Categories</b></label>
+
+                    <select name="feedback_category_id" id="feedback_category_id" class="form-select"
+                        aria-label="Default select example">
+                        <option selected>Select Category</option>
                         @foreach ($feedback_categories as $category)
                         <option value="{{$category->id}}">{{$category->name}}</option>
                         @endforeach
                     </select>
+
                     @error('feedback_category_id')
                     <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                 </div>
+
                 <div class="form-group">
-                    <label for="exampleInputEmail1">Title</label>
-                    <input name="title" type="text" class="form-control" placeholder="Enter title">
+                    <label for="title"><b>Title</b></label> <br>
+                    <input type="text" class="styled-input" placeholder="Enter your text here" id="title" name="title">
+                    <br><small>Enter feedback title</small>
                     @error('title')
                     <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Description</label>
-                    <textarea name="description" class="form-control" id="exampleFormControlTextarea1"
-                        rows="5"></textarea>
+                    <label><b> Description</b></label>
+                    <textarea name="description" class="form-control" rows="5"></textarea>
                     <small class="form-text text-muted">Provide detailed description.</small>
                     @error('description')
                     <div class="alert alert-danger">{{ $message }}</div>

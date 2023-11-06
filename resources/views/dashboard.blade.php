@@ -50,7 +50,7 @@
                     <button type="button" class="list-group-item list-group-item-action active"
                         onclick="showSection('dashboard')">Dashboard</button>
                     <button type="button" class="list-group-item list-group-item-action"
-                        onclick="showSection('users')">Orders</button>
+                        onclick="showSection('users')">Users</button>
                     <button type="button" class="list-group-item list-group-item-action"
                         onclick="showSection('retention')">Comments</button>
                 </div>
@@ -75,7 +75,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Feedbacks</h5>
-                                <p class="card-text">500</p>
+                                <p class="card-text">{{count($feedbacks)}}</p>
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,9 @@
                                     <td>
                                         <span class="badge badge-success">{{ $feedback->feedbackCategory->name }}</span>
                                     </td>
-                                    <td>{{ $feedback->description }}</td>
+                                    <td>
+                                        {!! Parsedown::instance()->text($feedback->description ) !!}
+                                    </td>
                                     <td>
                                         <i class="bi bi-trash-fill" data-id="{{ $feedback->id }}"
                                             data-action="deleteFeedback" style="cursor:pointer;"></i>
@@ -261,7 +263,7 @@
                                         <!-- Merge into one cell -->
                                         Feedback: <small><b>{{$comment->feedback->title}}</b></small>
                                         <!-- Display title in bold -->
-                                        <small>{{$comment->feedback->description}}</small>
+                                        <small>{{$comment->feedback->description}} </small>
                                         <!-- Display description in a smaller text -->
                                     </td>
                                 </tr>

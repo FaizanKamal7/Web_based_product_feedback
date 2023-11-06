@@ -2,3 +2,23 @@
 .a_no_style{
     text-decoration: none;
 }
+
+  .styled-input {
+    font-size: 16px;             /* Make text size larger */
+    padding: 10px;               /* Add some padding inside the input field */
+    margin:  0;              /* Add some margin above and below the input */
+    border: 1px solid #ccc;      /* Add a border to the input */
+    border-radius: 4px;          /* Round the corners */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Inner shadow for a subtle depth effect */
+    outline: none;               /* Remove the default focus highlight */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+  }
+
+  .styled-input:focus {
+    border-color: #66afe9;       /* Change border color when the input is focused */
+    box-shadow: inset 0 1px 3px rgba(102, 175, 233, 0.6); /* Change inner shadow color when focused */
+  }
+
+  .styled-input::placeholder {
+    color: #999;                /* Change the placeholder text color */
+  }
