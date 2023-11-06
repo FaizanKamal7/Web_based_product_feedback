@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/delete-user/{id}', [ProfileController::class, 'deleteUser'])->name('delete_توھد');
+    Route::post('/update-comment-status', [FeedbackController::class, 'updateStatus'])->name('comment.updateStatus');
 
 
     Route::group(['prefix' => 'feedback'], function () {

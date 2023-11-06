@@ -10,41 +10,26 @@ use Illuminate\Notifications\Notification;
 class UserMentioned extends Notification
 {
     use Queueable;
-    public $comment;
 
+    protected $comment;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct($comment)
+    public function __construct(Comment $comment)
     {
         $this->comment = $comment;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        return ['mail'];
+        return ['database', 'mail']; // Choose the channels you want to use
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail($notifiable)
     {
-        $url = url('/comments/' . $this->comment->id);
-
         return (new MailMessage)
-            ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('You have been mentioned in a comment.')
-            ->action('View Comment', $url)
+            ->line('You were mentioned in a comment.')
+            ->action('View Comment', url('/comments/' . $this->comment->id))
             ->line('Thank you for using our application!');
     }
-
     /**
      * Get the array representation of the notification.
      *

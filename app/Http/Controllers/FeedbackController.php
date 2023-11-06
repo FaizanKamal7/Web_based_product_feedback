@@ -7,6 +7,7 @@ use App\Interfaces\FeedbackInterface;
 use App\Models\Feedback;
 use App\Models\FeedbackComment;
 use App\Models\FeedbackVote;
+use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,11 +72,25 @@ class FeedbackController extends Controller
 
         try {
             DB::beginTransaction();
-            $this->feedback_repository->createFeedbackComment([
+            $comment = $this->feedback_repository->createFeedbackComment([
                 'feedback_id' => $request->feedback_id,
                 'content' => $request->comment,
                 'user_id' => Auth::user()->id,
             ]);
+
+            preg_match_all('/@([\w\-]+)/', $request->body, $matches);
+            $names = $matches[1];
+
+            foreach ($names as $name) {
+                $user = User::where('name', $name)->first();
+                if ($user) {
+                    $mention = new Mention(['user_id' => $user->id]);
+                    $comment->mentions()->save($mention);
+
+                    // Notify the mentioned user
+                    $user->notify(new UserMentioned($comment));
+                }
+            }
 
             DB::commit();
             return Redirect::back()->with('success', 'Comment submitted successfully');
@@ -158,5 +173,19 @@ class FeedbackController extends Controller
         $feedback->delete();
 
         return response()->json(['success' => 'Feedback deleted successfully'], 200);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        // Validate request, for example, ensure 'status' is a boolean
+        $validatedData = $request->validate([
+            'status' => 'required',
+        ]);
+
+        // Update the setting in the database...
+        // Assuming you have a Model 'Setting' and a 'comments_enabled' column
+        $per =  Permission::where('name', 'can_comment')->update(['is_active' => $validatedData['status'] == 'true' ? 1 : 0]);
+        // Return a response, for example a simple success message
+        return response()->json(['message' => 'Comment status updated successfully!']);
     }
 }

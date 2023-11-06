@@ -20,6 +20,11 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
+        // ------ Adding Permission
+        $this->command->warn(PHP_EOL . 'Importing Permissions...');
+        $this->call(PermissionSeeder::class);
+        $this->command->info('Permission added.');
+
         // ------ Adding Feedback Categories 
         $this->command->warn(PHP_EOL . 'Importing Feedback Categories...');
         $this->call(FeedbackCategorySeeder::class);

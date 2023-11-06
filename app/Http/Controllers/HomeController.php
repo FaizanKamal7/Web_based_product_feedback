@@ -6,6 +6,7 @@ use App\Enums\ReactionTypeEnum;
 use App\Models\Feedback;
 use App\Models\FeedbackCategory;
 use App\Models\FeedbackComment;
+use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +31,9 @@ class HomeController extends Controller
     {
         $feedbacks = Feedback::get();
         $feedback_categories = FeedbackCategory::get();
-        return view('welcome', ['feedbacks' => $feedbacks, 'feedback_categories' => $feedback_categories]);
+        $comments_enabled = Permission::where('name', 'can_comment')->first();
+
+        return view('welcome', ['feedbacks' => $feedbacks, 'feedback_categories' => $feedback_categories, 'comments_enabled' => $comments_enabled]);
     }
 
     public function parseMentions($content)

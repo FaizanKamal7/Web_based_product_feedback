@@ -126,7 +126,7 @@
                     </div>
                 </div>
 
-
+                @if ($comments_enabled->is_active )
                 <!-- Nested Comment -->
                 <div class="comments" id="comments_{{ $key }}" style="display: block">
                     @foreach ($feedback->feedbackComments as $comment)
@@ -198,7 +198,8 @@
 
 
                     <!-- Add Comment -->
-                    <form action="{{ route('store_feedback_comment') }}" method="POST">
+                    <form action="{{ route('store_feedback_comment') }}" method="POST" class="feedback-comment-form"
+                        data-feedback-key="{{ $key }}">
                         @csrf
                         <input type="hidden" name="feedback_id" value="{{$feedback->id}}">
                         <div class="mt-3 ml-5" id="add_comment_section">
@@ -213,6 +214,10 @@
                     </form>
 
                 </div>
+                @else
+                <div class="alert alert-warning">Comments disabled</div>
+                @endif
+
                 <hr>
                 @endforeach
 
@@ -306,6 +311,40 @@
         var textareas = document.querySelectorAll('.form-control');
         textareas.forEach(function(textarea) {
             new SimpleMDE({ element: textarea });
+        });
+    });
+
+
+    $('.feedback-comment-form').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+        
+        var form = $(this);
+        var feedbackKey = form.data('feedback-key');
+        var url = form.attr('action');
+        var method = form.attr('method');
+        var data = {
+            _token: form.find('input[name="_token"]').val(),
+            feedback_id: form.find('input[name="feedback_id"]').val(),
+            comment: form.find('textarea[name="comment"]').val()
+        };
+
+        // Perform the AJAX request
+        $.ajax({
+            url: url,
+            type: method,
+            data: data,
+            success: function(response) {
+                // Handle success. You might want to add the new comment to the view,
+                // clear the textarea, and/or display a success message.
+                $('#comment-' + feedbackKey).val(''); // Clear the textarea
+                // You can append the new comment to a comments section if you have one
+                // $('#comments-container-' + feedbackKey).append(response.commentHtml);
+                alert('Comment added successfully'); // Simple alert for demonstration
+            },
+            error: function(xhr, status, error) {
+                // Handle error. You might want to display an error message.
+                alert('An error occurred: ' + xhr.responseText);
+            }
         });
     });
 </script>

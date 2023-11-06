@@ -235,6 +235,14 @@
                 <hr>
 
                 <h1 class="display-4">Comments</h1>
+                <!-- Default checked -->
+                <div class="alert alert-secondary" role="alert">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="enable_comments_switch" checked>
+                        <label class="custom-control-label" for="enable_comments_switch">Enable/Disable Comments</label>
+                    </div>
+                </div>
+
                 <!-- More Dummy Data -->
                 <div class="row mt-3">
                     <div class="col-md-12">
@@ -400,6 +408,28 @@
                 });
             }
         }
+
+        $('#enable_comments_switch').change(function() {
+            // Send AJAX request
+            $.ajax({
+                url: '{{ route("comment.updateStatus") }}',
+                type: 'POST',
+                
+                data: {
+                    'status': this.checked,
+                    '_token': '{{ csrf_token() }}' // CSRF token is required by Laravel for POST requests
+                },
+                success: function(response) {
+                    // Show an alert with the response message
+                    alert(response.message);
+                },
+                error: function(xhr, status, error) {
+                // Handle error
+                var errorMessage = xhr.status + ': ' + xhr.statusText + " error "+ error
+                alert('Error - ' + errorMessage);
+            }
+            });
+        });
 
     </script>
 

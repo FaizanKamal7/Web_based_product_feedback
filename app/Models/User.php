@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(FeedbackCommentReaction::class);
     }
 
+    public function mentions()
+    {
+        return $this->hasMany(Mention::class);
+    }
+
     protected static function newFactory()
     {
         return UserFactory::new();

@@ -64,6 +64,11 @@ class FeedbackComment extends Model
         return $this->feedbackCommentReaction()->where('reaction',  ReactionTypeEnum::ANGRY->value);
     }
 
+    public function mentions()
+    {
+        return $this->morphMany(Mention::class, 'mentionable');
+    }
+
     protected static function newFactory()
     {
         return FeedbackCommentFactory::new();
